@@ -389,12 +389,20 @@ contains
           x = intersections(1,i+1)- intersections(1,i)
           y = intersections(2,i+1) - intersections(2,i)
 
+
+!  If you use n_vec/t_vec to rotate, use n_vec2/t_vec2 to revert back , vice versa
+!  If you use vec2/vec3 to rotate, use -n_vec2/-t_vec2 to revert back
           n_vec = -(/-abs(y),x/)
+          vec2 = (/-abs(y),x/)
           n_vec2 = (/abs(y),x/) ! for turning back to original
           n_vec = n_vec/(sqrt(x**2+y**2))
           n_vec2 = n_vec2/(sqrt(x**2+y**2))
-          t_vec = -(/x,abs(y)/)
-          vec5 = -(/x,-abs(y)/)
+          vec2 = vec2/sqrt(x**2+y**2)
+
+          t_vec = (/x,abs(y)/)
+          vec3 = (/-x,-abs(y)/)
+          vec5 = t_vec! -(/x,-abs(y)/)
+          vec3 = vec3/sqrt(x**2+y**2)
           t_vec2 = (/-x,abs(y)/) ! for turning back to orignal
           t_vec = t_vec/(sqrt(x**2+y**2))
           t_vec2 = t_vec2/sqrt(x**2+y**2)
@@ -402,14 +410,14 @@ contains
 
           if (ixy.eq.2) then
             call rotate_state(q_hbox_d(:,i),vec3, &
-            -mm*n_vec,mm*t_vec)
+            mm*n_vec,mm*t_vec)
             call rotate_state(q_hbox_u(:,i),vec4,&
-             -ll*n_vec2,ll*t_vec)
+             ll*n_vec,ll*t_vec)
            else
              call rotate_state(q_hbox_d(:,i),vec3, &
-            mm*n_vec2,mm*t_vec2)
+            mm*vec2,mm*vec3)
              call rotate_state(q_hbox_u(:,i),vec4,&
-            ll*n_vec2,ll*t_vec)
+            ll*vec2,ll*vec3)
             end if
 
           hL = vec4(1)
@@ -448,19 +456,19 @@ contains
 
          if (.not.ot) then
            if (ixy.eq.1) then
-           vec1 =-ll*t_vec
-           vec2 = mm*n_vec ! negative if reflection and t_vec/n_vec if
+           vec1 =-ll*n_vec2
+           vec2 = -mm*t_vec2 ! negative if reflection and t_vec/n_vec if
           else
-            vec1= ll*t_vec
-            vec2 = -mm*n_vec
+            vec1= -ll*n_vec2
+            vec2 = -mm*t_vec2
           end if
          else
            if (ixy.eq.2) then
-              vec1 = -ll*t_vec2  !vec5
-              vec2 = -ll*n_vec2! negative if reflection and t_vec/n_vec if ! must be n_vec2
+              vec1 =ll*n_vec2  !vec5
+              vec2 = ll*t_vec2! negative if reflection and t_vec/n_vec if ! must be n_vec2
             else
-           vec1 = -ll*t_vec2!-ll*t_vec!-ll*n_vec!-ll*t_vec2  negative when OT, not when reflection
-           vec2 = -ll*n_vec2!-mm*n_vec!-mm*n_vec2
+           vec1 = -ll*n_vec2!-ll*t_vec!-ll*n_vec!-ll*t_vec2  negative when OT, not when reflection
+           vec2 = -ll*t_vec2!-mm*n_vec!-mm*n_vec2
           end if
          end if
  ! x - swipe
@@ -470,7 +478,7 @@ contains
             qold2(:,is,js) = qold2(:,is,js) - dtdx/area_supper(i)*(lengths_supper(2,i))*&
              (fm2(:,is+1,js)) - dtdx/area_supper(i)*(fp2(:,is,js))! & + f(qold2(:,is,js),1)
               ! - f(qold2(:,is,js),1))
-            call rotate_state(qold2(:,is,js),qold2(:,is,js),-coef*mm*n_vec,-coef*mm*vec5)
+            call rotate_state(qold2(:,is,js),qold2(:,is,js),coef*mm*n_vec,coef*mm*vec5)
             ! print *, "ROT: ", qold2(:,is,js)
             qnew2(:,is,js) = qold2(:,is,js) - dtdx/area_supper(i)*lengths_supper(1,i)*&
               (amdq_wall)!f(qold2(:,is,js),1)+
@@ -513,7 +521,7 @@ contains
           case (4) ! TYPE 4 Cut cell
             ! upper small cell
             qold2(:,is,js) = qold2(:,is,js) - dtdx/area_supper(i)*lengths_supper(3,i)*(fp2(:,is,js))!&
-            call rotate_state(qold2(:,is,js),qold2(:,is,js),-coef*mm*n_vec,-coef*mm*vec5)
+            call rotate_state(qold2(:,is,js),qold2(:,is,js),coef*mm*n_vec,coef*mm*vec5)
             qnew2(:,is,js) = qold2(:,is,js) - dtdx/area_supper(i)*lengths_supper(1,i)*&
               (amdq_wall)!f(qold2(:,is,js),1) +
             call rotate_state(qnew2(:,is,js),qnew2(:,is,js),coef*vec1,coef*vec2)
@@ -598,7 +606,7 @@ contains
           case (3)
             ! upper small cell
             qnew2(:,is,js) = qnew2(:,is,js) - dtdx/area_supper(i)*(gm2(:,is,js+1))!f(qold2(:,is,js),2)+
-            call rotate_state(qnew2(:,is,js),qnew2(:,is,js),-coef*mm*n_vec,-coef*mm*vec5)
+            call rotate_state(qnew2(:,is,js),qnew2(:,is,js),coef*mm*n_vec,coef*mm*vec5)
             qnew2(:,is,js) = qnew2(:,is,js) - dtdx/area_supper(i)*lengths_supper(1,i)*&
               (amdq_wall) !f(qold2(:,is,js),1) +
             call rotate_state(qnew2(:,is,js),qnew2(:,is,js),coef*vec1,coef*vec2)
@@ -862,7 +870,7 @@ contains
     subroutine SRD_update_correct(qnew,qnew2,all_undercells_i,all_undercells_j,&      !  [     ]
                     all_uppercells_i,all_uppercells_j,ii,jj,N_ij_up,N_ij_un,&
                     unS_cells_i,unS_cells_j,upS_cells_i,upS_cells_j,up_area_ij,&
-                    un_area_ij,mx,my,mbc)
+                    un_area_ij,mx,my,mbc,ixy)
       implicit none
       real(8) :: qnew(3,1-mbc:mx+mbc,1-mbc:my+mbc),qnew2(3,1-mbc:mx+mbc,1-mbc:my+mbc)
       integer :: all_undercells_i(:),all_uppercells_i(:),all_undercells_j(:)
@@ -870,16 +878,26 @@ contains
       integer :: N_ij_un(1-mbc:mx+mbc,1-mbc:my+mbc)
       integer :: unS_cells_i(:),unS_cells_j(:),upS_cells_i(:),upS_cells_j(:)
       real(8) :: up_area_ij(1-mbc:mx+mbc,1-mbc:my+mbc),un_area_ij(1-mbc:mx+mbc,1-mbc:my+mbc)
-      integer :: mx,my,mbc
+      integer :: mx,my,mbc,ixy
       ! local
       integer :: i,N,i0,j0,num_ij,i_n,j_n, array(mx*4),k,array2(mx*4)
-      real(8) :: beta,alpha,nhood_val(3),val(3)
-      integer :: num_ij2
+      real(8) :: beta,alpha,nhood_val(3),val(3),gamma,delta,temp1(3),temp2(3)
+      real(8):: temp3(3), temp4(3)
+      integer :: num_ij2,mid_ind
+      ! if (ixy .eq.1 ) then
+      !   temp1 = qnew2(:,ii(size(ii)),jj(size(jj))+1)
+      !   temp2 = qnew2(:,ii(size(ii))+1,jj(size(jj))+1)
+      !   temp3 = qnew2(:,ii(size(ii)),jj(size(jj)))
+      !   temp4 = qnew2(:,ii(size(ii))+1,jj(size(jj)))
+      ! end if
 
       ! DO UPPER SIDE FIRST:
       N = size(ii)! size(all_undercells_i)
       k=1
       do i=1,N
+        ! if (ixy.eq.2 .and. i.eq.1) then
+        !   cycle
+        ! end if
         i0 = ii(i)!all_uppercells_i(i)
         j0 = jj(i)!all_uppercells_j(i)
         ! print *, "Q UP BEFORE: ", qnew2(:,i0,j0)
@@ -901,6 +919,7 @@ contains
           ! print *, "area: UP", up_area_ij(i0,j0)
           ! get neighborhood value:
           ! if (up_area_ij(i0,j0).lt.0.5d0) then!  .and. abs(up_area_ij(i0,j0)-0.5d0).gt.1d-10)then
+
             i_n = i0!upS_cells_i(array2(i))
             j_n = j0+1!upS_cells_j(array2(i))
             beta = up_area_ij(i_n,j_n)
@@ -924,13 +943,26 @@ contains
               ! print *, "val'", val
               qnew2(:,i_n,j_n) = val + nhood_val/2.d0
               ! print *, "averag val:", qnew2(1,i_n,j_n)
-            ! end if
-          end if
+            end if
+          ! end if
         ! end if
         ! print *, "Q UP AFTER: ", qnew2(:,i0,j0)
         ! print *, "Q  UP NEIGHBOR AFTER: ", qnew2(:,i_n,j_n)
       end do
 
+      ! print*, "I get er"
+      ! if (ixy.eq.1) then
+      !   beta = up_area_ij(ii(N)+1,jj(N))
+      !   gamma = up_area_ij(ii(N),jj(N)+1)
+      !   delta = up_area_ij(ii(N)+1,jj(N)+1)
+      !   nhood_val = (alpha/2 + gamma/3 + delta/3 +beta/2)**(-1) * &
+      !      (alpha/2 * temp3+ gamma/3* temp1 + &
+      !      delta/3 *temp2 + beta/2 * temp4)
+      !   qnew2(:,ii(N),jj(N)) = 1/2 * nhood_val
+      !   qnew2(:,ii(N)+1,jj(N)) = 1/2 * nhood_val
+      !   qnew2(:,ii(N),jj(N)+1) = 1/3*( temp1 + 2*nhood_val)
+      !   qnew2(:,ii(N)+1,jj(N)+1) = 1/3*(temp2 + 2*nhood_val)
+      ! end if
       ! DO UNDER SIDE NEXT:
       N = size(ii)! size(all_undercells_i)
       k = 1
