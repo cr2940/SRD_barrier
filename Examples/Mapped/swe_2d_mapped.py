@@ -14,7 +14,7 @@ import SWE_Vmap
 from clawpack.pyclaw.plot import plot
 import matplotlib.pyplot as plt
 from matplotlib import cm
-
+import math
 
 # m1 = 0.3639  # slope of one edge of the V barrier
 bar_loc = 0.65333# 0.65333
@@ -22,7 +22,7 @@ m1 = (bar_loc-0.3)
 straight = 0.0#0.1   LH: (0,0) -> (0.5,0.4)  y=(0.4)/(0.5)x  UH: (0.5,0.4) -> (1,0)  y = 0.4-(0.4/0.5)(x-0.5)
 mx= 450
 ycen = (bar_loc+0.3)/2
-print(int(mx*bar_loc))
+print(math.ceil(mx*ycen))  # this is the index of the computational y-edge where wave redistirbution is applied
 def m(y):
     # slope function with respect to position y under the V barrier
     y_low = y<=bar_loc
@@ -44,9 +44,9 @@ def Vmap(xc,yc):
     abo = yc.copy()# > y_star
     bel = yc.copy()# <= y_star
     bel[:,:] = 0
-    bel[:,:int(mx*ycen)] = 1# el[1,:]
+    bel[:,:math.ceil(mx*ycen)] = 1# el[1,:]
     abo[:,:] = 1
-    abo[:,:int(mx*ycen)] = 0
+    abo[:,:math.ceil(mx*ycen)] = 0
     # abo[0,:] = abo[1,:]
     yp = (np.multiply(y_star/ycen, yc) )* bel + (np.multiply(dist_to_top/ycen, yc) + y_star - (dist_to_top))*abo #(0.7-0.4*xc)/0.5 * yc /(0.7/0.5) * abo #
 
