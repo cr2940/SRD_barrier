@@ -1,6 +1,6 @@
 To generate your own example, 
 
-	go to set_aux_SRD.f90
+	go to set_aux_SRD.f90 (linear) or set_aux_SRD_V.f90 (V)
 	change the setting
 	run `source geom_calc.sh`
 
