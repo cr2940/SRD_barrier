@@ -702,7 +702,7 @@
 
     real(kind=8) hR,hL,huR,huL,uR,uL,hvR,hvL,vR,vL,phiR,phiL
     real(kind=8) bR,bL,sL,sR,sRoe1,sRoe2,sE1,sE2,uhat,chat
-    real(kind=8) s1m,s2m
+    real(kind=8) s1m,s2m,um
     real(kind=8) hstar,hstartest,hstarHLL,sLtest,sRtest
     real(kind=8) tw,dxdc
 
@@ -800,7 +800,7 @@
        wall(2) = 1.d0
        wall(3) = 1.d0
        if (hR.le.drytol) then
-          call riemanntype(hL,hL,uL,-uL,hstar,s1m,&
+          call riemanntype(hL,hL,uL,-uL,hstar,um,s1m,&
           s2m,rare1,rare2,1,drytol,g)
           hstartest=max(hL,hstar)
           if (hstartest+bL.lt.bR) then !right state should become ghost values that mirror left for wall problem
@@ -817,7 +817,7 @@
              bR=hL+bL
           endif
        elseif (hL.le.drytol) then ! right surface is lower than left topo
-          call riemanntype(hR,hR,-uR,uR,hstar,s1m,s2m,&
+          call riemanntype(hR,hR,-uR,uR,hstar,um,s1m,s2m,&
              rare1,rare2,1,drytol,g)
           hstartest=max(hR,hstar)
           if (hstartest+bR.lt.bL) then  !left state should become ghost values that mirror right
