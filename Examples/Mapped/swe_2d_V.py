@@ -21,7 +21,7 @@ def m(y):
     # slope function with respect to position y under the V barrier
     y_low = y<=0.72
     y_abo = y>0.72
-    slope = (m1/0.72 * y)*y_low + (-m1/0.28 * y + m1 + (m1/0.28)*0.72)*y_abo
+    slope = ((m1/0.72 * y)*y_low + (-m1/0.28 * y + m1 + (m1/0.28)*0.72)*y_abo)*(y<0.9) + 0*(y>0.9)
     return slope
 def Vmap(xc,yc):
     # the V mapping function
@@ -98,7 +98,7 @@ def incoming_square_wave(state,dim,t,qbc,auxbc,num_ghost):
 
 def setup(kernel_language='Fortran', use_petsc=False, outdir='./_output',
           solver_type='classic', time_integrator='SSP104',
-          num_output_times=20, disable_output=False, num_cells=200):
+          num_output_times=14, disable_output=False, num_cells=200):
     from clawpack import riemann
 
     if use_petsc:
@@ -144,8 +144,8 @@ def setup(kernel_language='Fortran', use_petsc=False, outdir='./_output',
     state.aux[1,:,:] = a_x
     state.aux[2,:,:] = a_y
     state.aux[3,:,:] = length_left
-    state.aux[4,:,:] = b_x
-    state.aux[5,:,:] = b_y
+    state.aux[5,:,:] = b_x
+    state.aux[4,:,:] = b_y
     state.aux[6,:,:] = length_bottom
     state.aux[7,:,:] = area
     state.index_capa = 7 # aux[7,:,:] holds the capacity function
@@ -163,8 +163,8 @@ def setup(kernel_language='Fortran', use_petsc=False, outdir='./_output',
     #     state.aux[8][in_circle] = sound_speed[i]
 
     # Set initial condition
-    state.q[0,:,:] = 1.0
-    state.q[0,:,:20] += 1.0
+    state.q[0,:,:] = 1.2 + (yp>0.9)*0.8*np.ones(state.q[0,:,:].shape)# - 2.0 *np.ones(state.q[0,:,:].shape)*(yp>1.0)
+
     state.q[1,:,:] = 0.
     state.q[2,:,:] = 0.
 
@@ -189,7 +189,7 @@ def setup(kernel_language='Fortran', use_petsc=False, outdir='./_output',
 def surface_height(current_data):
     h = current_data.q[0,:,:]
 
-    return h-1
+    return h-1.2
 
 def setplot(plotdata):
     """
@@ -217,12 +217,12 @@ def setplot(plotdata):
     # Set up for item on these axes:
     plotitem = plotaxes.new_plotitem(plot_type='2d_contourf')
     plotitem.plot_var = surface_height
-    # plotitem.add_colorbar = True
-    # plotitem.colorbar_ticks = [-0.5,-0.4,-0.3,-0.2,-0.1,0.0,0.1,0.2,0.3,0.4,0.5]
-    # cmap2 = cm.get_cmap('bwr')
-    # plotitem.fill_cmap = cmap2
-    # plotitem.contour_min = -0.5
-    # plotitem.contour_max = 0.5
+    plotitem.add_colorbar = True
+    plotitem.colorbar_ticks = [-0.5,-0.4,-0.3,-0.2,-0.1,0.0,0.1,0.2,0.3,0.4,0.5]
+    cmap2 = cm.get_cmap('bwr')
+    plotitem.fill_cmap = cmap2
+    plotitem.contour_min = -0.5
+    plotitem.contour_max = 0.5
     plotaxes.xlimits = [0,1]
     plotaxes.ylimits = [0,1]
 
