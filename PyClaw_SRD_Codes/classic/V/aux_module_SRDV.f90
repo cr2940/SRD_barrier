@@ -365,20 +365,20 @@ contains
        !  end do
      !  enddo
    !  endif
-    if (ixy.eq.2) then
-      do i = 1,m2
-        do j=1,num_frags_d2(i)
-          look = index_frags_d2(:,j,i)
-          q_hbox_d(:,i) = q_hbox_d(:,i) + qold(:,look(1),look(2))*area_frags_d2(j,i)
-        end do
-      enddo
-      do i = 1,m2
-        do j=1,num_frags_u2(i)
-          look = index_frags_u2(:,j,i)
-          q_hbox_u(:,i) = q_hbox_u(:,i) + qold2(:,look(1),look(2))*area_frags_u2(j,i)
-        end do
-      enddo
-    end if
+!    if (ixy.eq.2) then
+!      do i = 1,m2
+!        do j=1,num_frags_d2(i)
+!          look = index_frags_d2(:,j,i)
+!          q_hbox_d(:,i) = q_hbox_d(:,i) + qold(:,look(1),look(2))*area_frags_d2(j,i)
+!        end do
+!     enddo
+!      do i = 1,m2
+!        do j=1,num_frags_u2(i)
+!          look = index_frags_u2(:,j,i)
+!          q_hbox_u(:,i) = q_hbox_u(:,i) + qold2(:,look(1),look(2))*area_frags_u2(j,i)
+!        end do
+!      enddo
+!    end if
        ot = .false.
        coef = 1
       ll = -1  ! if ot make these neg
