@@ -323,48 +323,48 @@ contains
       real(8) :: qtemp1(3),qtemp2(3),qtemp3(3)
 
       ! get the hboxes for normal barrier flux calculation:
-      inquire (file="./hbox_data.txt",exist=lexist)
-      open (unit=2,file="./hbox_data.txt",FORM="FORMATTED",STATUS="OLD",&
-      ACTION="READ",access='sequential')
-      rewind 2
-      read(2,*,end=100) m
-      read(2,*) m2
-      read(2,*) num_frags_d
-      read(2,*) num_frags_d2
-      read(2,*) num_frags_u
-      read(2,*) num_frags_u2
-      read(2,*) index_frags_d
-      read(2,*) index_frags_d2
-      read(2,*) index_frags_u
-      read(2,*) index_frags_u2
-      read(2,*) hbox_areas_d
-      read(2,*) hbox_areas_d2
-      read(2,*) hbox_areas_u
-      read(2,*) hbox_areas_u2
-      read(2,*) area_frags_u
-      read(2,*) area_frags_u2
-      read(2,*) area_frags_d
-      read(2,*) area_frags_d2
-      close(2,status="keep")
-  100 continue
+!       inquire (file="./hbox_data.txt",exist=lexist)
+ !      open (unit=2,file="./hbox_data.txt",FORM="FORMATTED",STATUS="OLD",&
+  !     ACTION="READ",access='sequential')
+   !    rewind 2
+    !   read(2,*,end=100) m
+  !     read(2,*) m2
+  !     read(2,*) num_frags_d
+   !    read(2,*) num_frags_d2
+    !   read(2,*) num_frags_u
+   !    read(2,*) num_frags_u2
+    !   read(2,*) index_frags_d
+  !     read(2,*) index_frags_d2
+   !    read(2,*) index_frags_u
+    !   read(2,*) index_frags_u2
+   !    read(2,*) hbox_areas_d
+   !    read(2,*) hbox_areas_d2
+   !    read(2,*) hbox_areas_u
+   !    read(2,*) hbox_areas_u2
+   !    read(2,*) area_frags_u
+   !    read(2,*) area_frags_u2
+   !    read(2,*) area_frags_d
+   !    read(2,*) area_frags_d2
+   !    close(2,status="keep")
+ !  100 continue
       q_hbox_d = 0.d0
       q_hbox_u = 0.d0
       aux_hbox_d = -2.d0
       aux_hbox_u = -2.d0
-     if (ixy.eq.1) then
-      do i = 1,m
-        do j=1,num_frags_d(i)
-          look = index_frags_d(:,j,i)
-          q_hbox_d(:,i) = q_hbox_d(:,i) + qold(:,look(1),look(2))*area_frags_d(j,i)
-        end do
-      enddo
-      do i = 1,m
-        do j=1,num_frags_u(i)
-          look = index_frags_u(:,j,i)
-          q_hbox_u(:,i) = q_hbox_u(:,i) + qold2(:,look(1),look(2))*area_frags_u(j,i)
-        end do
-      enddo
-    endif
+   !   if (ixy.eq.1) then
+    !   do i = 1,m
+     !    do j=1,num_frags_d(i)
+      !     look = index_frags_d(:,j,i)
+        !   q_hbox_d(:,i) = q_hbox_d(:,i) + qold(:,look(1),look(2))*area_frags_d(j,i)
+      !   end do
+    !   enddo
+     !  do i = 1,m
+      !   do j=1,num_frags_u(i)
+       !    look = index_frags_u(:,j,i)
+        !   q_hbox_u(:,i) = q_hbox_u(:,i) + qold2(:,look(1),look(2))*area_frags_u(j,i)
+       !  end do
+     !  enddo
+   !  endif
     if (ixy.eq.2) then
       do i = 1,m2
         do j=1,num_frags_d2(i)
