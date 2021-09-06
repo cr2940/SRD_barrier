@@ -30,6 +30,7 @@ bar_height = 1.5#5.0 #1.5#5.0,1.6
 my = 300 # num x cells
 mx = my  # num y cells
 mbc = 2 # num ghost cells
+front = int(0.9*my)
 
 def bathymetry(x,y):
     # sloping beach
@@ -84,7 +85,7 @@ def setup(kernel_language='Fortran', solver_type='classic', use_petsc=False,
 
     # lower small cell state values in the cut cells
     state.q[depth,:,:] =1.2 # -0.55-state.aux[0,:,:]
-    state.q[depth,:,270:] += 0.8 #np.linspace(1.2,0.2,20)
+    state.q[depth,:,front:] += 0.8 #np.linspace(1.2,0.2,20)
     m1 = int(mx/2)
     m2 = int(mx/4)
     m3 = mx- m2
@@ -98,7 +99,7 @@ def setup(kernel_language='Fortran', solver_type='classic', use_petsc=False,
 
     # upper small-cell-replaced values in cut cells
     state.q2[depth,:,:] =1.2 # -0.55 -state.auxu[0,:,:]
-    state.q2[depth,:,270:] +=0.8# np.linspace(1.2,0.2,20)
+    state.q2[depth,:,front:] +=0.8# np.linspace(1.2,0.2,20)
     # state.q2[depth,:,:10] += .8
     state.q2[x_momentum,:,:] = 0.
     state.q2[y_momentum,:,:] = 0.
