@@ -285,17 +285,17 @@ contains
 
           call barrier_passing(hL,hR,huL,huR,bL,bR,wall_height,&
                     L2R,R2L,hstarL,hstarR,ustarL,ustarR)
-          if (L2R .or. R2L) then
-            ot = .true.
-            coef = -1
+          !if (L2R .or. R2L) then
+           ! ot = .true.
+           ! coef = -1
             q_hbox_d(:,i) = vec3
             q_hbox_u(:,i) = vec4
-          else
-            call rotate_state(q_hbox_d(:,i),q_hbox_d(:,i), &
-           -mm*n_vec,-mm*vec5)  ! turn these into negative for OT and positive for RF
-            call rotate_state(q_hbox_u(:,i),q_hbox_u(:,i),&
-             -ll*n_vec,-ll*vec5)
-          end if
+         ! else
+         !   call rotate_state(q_hbox_d(:,i),q_hbox_d(:,i), &
+         !  -mm*n_vec,-mm*vec5)  ! turn these into negative for OT and positive for RF
+         !   call rotate_state(q_hbox_u(:,i),q_hbox_u(:,i),&
+         !    -ll*n_vec,-ll*vec5)
+         ! end if
           call redistribute_fwave(1,q_hbox_u(:,i),q_hbox_d(:,i),aux_hbox_u(i),&
              aux_hbox_d(i),wall_height,1,wave_wall,s_wall,amdq_wall,apdq_wall,3,&
              3,L2R,R2L)
