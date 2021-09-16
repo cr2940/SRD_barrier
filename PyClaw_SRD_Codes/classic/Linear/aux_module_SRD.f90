@@ -270,9 +270,9 @@ contains
           vec5 = t_vec!vec5/sqrt(x**2+y**2)
 
           call rotate_state(q_hbox_d(:,i),vec3, &
-          mm*n_vec2,mm*t_vec)
+          -mm*n_vec,-mm*t_vec)
           call rotate_state(q_hbox_u(:,i),vec4,&
-          ll*n_vec2,ll*t_vec)
+          -ll*n_vec,-ll*t_vec)
 
           hL = vec4(1)
           hR = vec3(1)
@@ -300,8 +300,8 @@ contains
              aux_hbox_d(i),wall_height,1,wave_wall,s_wall,amdq_wall,apdq_wall,3,&
              3,L2R,R2L)
 
-             ! call rotate_state(amdq_wall,amdq_wall,mm*t_vec2,mm*n_vec2)
-             ! call rotate_state(apdq_wall,apdq_wall,ll*t_vec2,ll*n_vec2)
+             call rotate_state(amdq_wall,amdq_wall,mm*t_vec,mm*n_vec2)
+             call rotate_state(apdq_wall,apdq_wall,ll*t_vec,ll*n_vec2)
 
           if (.not. L2R .and. .not. R2L) then
             vec1 = ll*t_vec
@@ -317,21 +317,21 @@ contains
             qold2(:,is,js) = qold2(:,is,js) - dtdx/area_supper(i)*(lengths_supper(2,i))*&
              (fm2(:,is+1,js)) - dtdx/area_supper(i)*(fp2(:,is,js))! & + f(qold2(:,is,js),1)
               ! - f(qold2(:,is,js),1))
-            call rotate_state(qold2(:,is,js),qold2(:,is,js),coef*mm*n_vec,coef*mm*vec5)
+            !call rotate_state(qold2(:,is,js),qold2(:,is,js),coef*mm*n_vec,coef*mm*vec5)
             ! print *, "ROT: ", qold2(:,is,js)
             qnew2(:,is,js) = qold2(:,is,js) - dtdx/area_supper(i)*lengths_supper(1,i)*&
               (amdq_wall)!f(qold2(:,is,js),1)+
-            call rotate_state(qnew2(:,is,js),qnew2(:,is,js),coef*vec1,coef*vec2)
+            !call rotate_state(qnew2(:,is,js),qnew2(:,is,js),coef*vec1,coef*vec2)
             ! print *, "QNEW2:", qnew2(:,is,js)
 
             ! under small cell
             qold(:,is,js) = qold(:,is,js) - dtdx/area_sunder(i)*lengths_sunder(2,i)*&
             (fm(:,is+1,js))!+f(qold(:,is,js),1))
-            call rotate_state(qold(:,is,js),qold(:,is,js),coef*ll*n_vec,coef*ll*vec5)
+            !call rotate_state(qold(:,is,js),qold(:,is,js),coef*ll*n_vec,coef*ll*vec5)
             ! print *, "ROT LOW:", qold(:,is,js)
             qnew(:,is,js) = qold(:,is,js) - dtdx/area_sunder(i)*lengths_sunder(1,i)*&
               ( apdq_wall )!f(qold(:,is,js),1)
-            call rotate_state(qnew(:,is,js),qnew(:,is,js),coef*vec1,coef*vec2)
+            !call rotate_state(qnew(:,is,js),qnew(:,is,js),coef*vec1,coef*vec2)
             ! print *, "QNEW:", qnew(:,is,js)
 
           case (2) ! TYPE 2 Cut cell
@@ -360,64 +360,64 @@ contains
           case (4) ! TYPE 4 Cut cell
             ! upper small cell
             qold2(:,is,js) = qold2(:,is,js) - dtdx/area_supper(i)*lengths_supper(3,i)*(fp2(:,is,js))!&
-            call rotate_state(qold2(:,is,js),qold2(:,is,js),coef*mm*n_vec,coef*mm*vec5)
+            !call rotate_state(qold2(:,is,js),qold2(:,is,js),coef*mm*n_vec,coef*mm*vec5)
             qnew2(:,is,js) = qold2(:,is,js) - dtdx/area_supper(i)*lengths_supper(1,i)*&
               (amdq_wall)!f(qold2(:,is,js),1) +
-            call rotate_state(qnew2(:,is,js),qnew2(:,is,js),coef*vec1,coef*vec2)
+            !call rotate_state(qnew2(:,is,js),qnew2(:,is,js),coef*vec1,coef*vec2)
             !! -f(qold2(:,is,js),1))
 
             ! under small cell
             qold(:,is,js) = qold(:,is,js) - dtdx/area_sunder(i)*(lengths_sunder(5,i))*(fp(:,is,js))&!-f(qold(:,is,js),1))
              - dtdx/area_sunder(i)*(fm(:,is+1,js))!+f(qold(:,is,js),1))
-            call rotate_state(qold(:,is,js),qold(:,is,js),coef*ll*n_vec,coef*ll*vec5)
+            !call rotate_state(qold(:,is,js),qold(:,is,js),coef*ll*n_vec,coef*ll*vec5)
             qnew(:,is,js) = qold(:,is,js) - dtdx/area_sunder(i)*lengths_sunder(1,i)*&
               (apdq_wall)!f(qold(:,is,js),1)
-            call rotate_state(qnew(:,is,js),qnew(:,is,js),coef*vec1,coef*vec2)
+            !call rotate_state(qnew(:,is,js),qnew(:,is,js),coef*vec1,coef*vec2)
 
           case (5) ! TYPE 5 Cut cell
             ! upper small cell
             qold2(:,is,js) = qold2(:,is,js) - dtdx/area_supper(i)*lengths_supper(2,i)*(fm2(:,is+1,js))
-            call rotate_state(qold2(:,is,js),qold2(:,is,js),coef*mm*n_vec,coef*mm*t_vec)
+            !call rotate_state(qold2(:,is,js),qold2(:,is,js),coef*mm*n_vec,coef*mm*t_vec)
             qnew2(:,is,js) = qold2(:,is,js) - dtdx/area_supper(i)*lengths_supper(1,i)*&
               (amdq_wall)!f(qold2(:,is,js),1) +
-            call rotate_state(qnew2(:,is,js),qnew2(:,is,js),coef*vec1,coef*vec2)
+            !call rotate_state(qnew2(:,is,js),qnew2(:,is,js),coef*vec1,coef*vec2)
             ! f(qold2(:,is,js),1) +
             ! under small cell
             qold(:,is,js) = qold(:,is,js) - dtdx/area_sunder(i)*(lengths_sunder(2,i))*(fm(:,is+1,js))&
                -dtdx/area_sunder(i)*fp(:,is,js)
-            call rotate_state(qold(:,is,js),qold(:,is,js),coef*ll*n_vec,coef*ll*t_vec)
+            !call rotate_state(qold(:,is,js),qold(:,is,js),coef*ll*n_vec,coef*ll*t_vec)
             qnew(:,is,js) = qold(:,is,js) - dtdx/area_sunder(i)*lengths_sunder(1,i)*&
               (apdq_wall)!f(qold(:,is,js),1) -
-            call rotate_state(qnew(:,is,js),qnew(:,is,js),coef*vec1,coef*vec2)
+            !call rotate_state(qnew(:,is,js),qnew(:,is,js),coef*vec1,coef*vec2)
             ! f(qold(:,is,  js),1) +
           case (7)
             !  upper small cell
             qold2(:,is,js) = qold2(:,is,js) - dtdx/area_supper(i)*fp2(:,is,js)
-            call rotate_state(qold2(:,is,js),qold2(:,is,js),coef*mm*n_vec,coef*mm*t_vec)
+            !call rotate_state(qold2(:,is,js),qold2(:,is,js),coef*mm*n_vec,coef*mm*t_vec)
             qnew2(:,is,js) = qold2(:,is,js) - dtdx/area_supper(i)*lengths_supper(1,i)*&
               (amdq_wall) !f(qold2(:,is,js),1) +
-            call rotate_state(qnew2(:,is,js),qnew2(:,is,js),coef*vec1,coef*vec2)
+            !call rotate_state(qnew2(:,is,js),qnew2(:,is,js),coef*vec1,coef*vec2)
             ! under small cell
             qold(:,is,js) = qold(:,is,js) - dtdx/area_sunder(i)*fp(:,is,js)
-            call rotate_state(qold(:,is,js),qold(:,is,js),coef*ll*n_vec,coef*ll*t_vec)
+            !call rotate_state(qold(:,is,js),qold(:,is,js),coef*ll*n_vec,coef*ll*t_vec)
             qnew(:,is,js) = qold(:,is,js) - dtdx/area_sunder(i)*lengths_sunder(1,i)*&
               (apdq_wall)!f(qold(:,is,js),1)
-            call rotate_state(qnew(:,is,js),qnew(:,is,js),coef*vec1,coef*vec2)
+            !call rotate_state(qnew(:,is,js),qnew(:,is,js),coef*vec1,coef*vec2)
           case(8)
             ! upper small cell
             qold2(:,is,js) = qold2(:,is,js) - dtdx/area_supper(i)*(lengths_supper(5,i))*(fp2(:,is,js))&
              - dtdx/area_supper(i)*fm2(:,is+1,js)
-            call rotate_state(qold2(:,is,js),qold2(:,is,js),coef*mm*n_vec,coef*mm*t_vec)
+            !call rotate_state(qold2(:,is,js),qold2(:,is,js),coef*mm*n_vec,coef*mm*t_vec)
             qnew2(:,is,js) = qnew2(:,is,js) - dtdx/area_supper(i)*lengths_supper(1,i)*&
               (amdq_wall)!f(qold2(:,is,js),1) +
-            call rotate_state(qnew2(:,is,js),qnew2(:,is,js),coef*vec1,coef*vec2)
+            !call rotate_state(qnew2(:,is,js),qnew2(:,is,js),coef*vec1,coef*vec2)
             ! f(qold2(:,is,&  js),1)
             ! under small cell
             qold(:,is,js) = qold(:,is,js) - dtdx/area_sunder(i)*lengths_sunder(3,i)*(fp(:,is,js))
-            call rotate_state(qold(:,is,js),qold(:,is,js),coef*ll*n_vec,coef*ll*t_vec)
+            !call rotate_state(qold(:,is,js),qold(:,is,js),coef*ll*n_vec,coef*ll*t_vec)
             qnew(:,is,js) = qold(:,is,js) - dtdx/area_sunder(i)*lengths_sunder(1,i)*&
               ( apdq_wall)!f(qold(:,is,js),1)
-            call rotate_state(qnew(:,is,js),qnew(:,is,js),coef*vec1,coef*vec2)
+            !call rotate_state(qnew(:,is,js),qnew(:,is,js),coef*vec1,coef*vec2)
             ! f(qold(:,is,js),1)&
 
           end select
@@ -445,16 +445,16 @@ contains
           case (3)
             ! upper small cell
             qnew2(:,is,js) = qnew2(:,is,js) - dtdx/area_supper(i)*(gm2(:,is,js+1))!f(qold2(:,is,js),2)+
-            call rotate_state(qnew2(:,is,js),qnew2(:,is,js),coef*mm*n_vec,coef*mm*vec5)
+            !call rotate_state(qnew2(:,is,js),qnew2(:,is,js),coef*mm*n_vec,coef*mm*vec5)
             qnew2(:,is,js) = qnew2(:,is,js) - dtdx/area_supper(i)*lengths_supper(1,i)*&
               (amdq_wall) !f(qold2(:,is,js),1) +
-            call rotate_state(qnew2(:,is,js),qnew2(:,is,js),coef*vec1,coef*vec2)
+            !call rotate_state(qnew2(:,is,js),qnew2(:,is,js),coef*vec1,coef*vec2)
             ! under small cell
             qnew(:,is,js) = qnew(:,is,js) - dtdx/area_sunder(i)*(gp(:,is,js)) !-f(qold(:,is,js),2)+
-            call rotate_state(qnew(:,is,js),qnew(:,is,js),coef*ll*n_vec,coef*ll*vec5)
+            !call rotate_state(qnew(:,is,js),qnew(:,is,js),coef*ll*n_vec,coef*ll*vec5)
             qnew(:,is,js) = qnew(:,is,js) - dtdx/area_sunder(i)*lengths_sunder(1,i)*&
               (apdq_wall)!f(qold(:,is,js),1)
-            call rotate_state(qnew(:,is,js),qnew(:,is,js),coef*vec1,coef*vec2)
+            !call rotate_state(qnew(:,is,js),qnew(:,is,js),coef*vec1,coef*vec2)
 
           case (4)
             ! upper small cell
@@ -474,16 +474,16 @@ contains
             case (6)
               ! upper small cell
               qnew2(:,is,js) = qnew2(:,is,js) - dtdx/area_supper(i)*(gm2(:,is,js+1))!f(qold2(:,is,js),2)+
-              call rotate_state(qnew2(:,is,js),qnew2(:,is,js),coef*mm*n_vec,coef*mm*t_vec)
+              !call rotate_state(qnew2(:,is,js),qnew2(:,is,js),coef*mm*n_vec,coef*mm*t_vec)
               qnew2(:,is,js) = qnew2(:,is,js) - dtdx/area_supper(i)*lengths_supper(1,i)*&
                 (amdq_wall) !f(qold2(:,is,js),1) +
-              call rotate_state(qnew2(:,is,js),qnew2(:,is,js),coef*vec1,coef*vec2)
+              !call rotate_state(qnew2(:,is,js),qnew2(:,is,js),coef*vec1,coef*vec2)
               ! under small cell
               qnew(:,is,js) = qnew(:,is,js) - dtdx/area_sunder(i)*(gp(:,is,js)) !-f(qold(:,is,js),2)+
-              call rotate_state(qnew(:,is,js),qnew(:,is,js),coef*ll*n_vec,coef*ll*t_vec)
+              !call rotate_state(qnew(:,is,js),qnew(:,is,js),coef*ll*n_vec,coef*ll*t_vec)
               qnew(:,is,js) = qnew(:,is,js) - dtdx/area_sunder(i)*lengths_sunder(1,i)*&
                 (apdq_wall)!f(qold(:,is,js),1)
-              call rotate_state(qnew(:,is,js),qnew(:,is,js),coef*vec1,coef*vec2)
+              !call rotate_state(qnew(:,is,js),qnew(:,is,js),coef*vec1,coef*vec2)
 
           case (7)
             ! upper small cell
