@@ -167,6 +167,8 @@ def setup(kernel_language='Fortran', use_petsc=False, outdir='./_output',
 
     state.q[1,:,:] = 0.
     state.q[2,:,:] = 0.
+    
+    state.grid.add_gauges([(0.25,0.375),(0.25,0.73),(0.75,0.375),(0.25,0.73)])
 
     claw = pyclaw.Controller()
     claw.keep_copy = True
