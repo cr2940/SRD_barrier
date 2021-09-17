@@ -70,9 +70,7 @@ subroutine rpn2(ixy,maxm,meqn,mwaves,maux,mbc,mx,ql,qr,auxl,auxr,wave,s,amdq,apd
 
     common /cparam/  grav
 
-!     # set mu to point to  the component of the system that corresponds
-!     # to momentum in the direction of this slice, mv to the orthogonal
-!     # momentum:
+!     # set bar_y to be 0.72d0 for the V barrier example and (0.653333d0+0.3d0)/2.d0 for linear barrier
 !
  ! barrier location :
     bar_y = (0.653333d0+0.3d0)/2.d0!5d0!65333d0!0.72d0  !39d0!0.72d0
@@ -99,7 +97,7 @@ subroutine rpn2(ixy,maxm,meqn,mwaves,maux,mbc,mx,ql,qr,auxl,auxr,wave,s,amdq,apd
         ilenrat = 7
     endif
 
-! if in column direction, need to do redistribute wave at y=0.72:
+! if in column direction, need to do redistribute wave at y= y_bar:
      if (ixy == 2) then
        mlo = NINT(bar_y * mx)
      end if
@@ -143,27 +141,7 @@ subroutine rpn2(ixy,maxm,meqn,mwaves,maux,mbc,mx,ql,qr,auxl,auxr,wave,s,amdq,apd
              auxr(1,i-1),auxl(1,i),wall_height,&
              1,wave_wall,s_wall,amdq_wall,apdq_wall,3,&
              3,L2R,R2L)
-        !   s(1,i) = minval(s_wall) !*auxl(ilenrat,i)
-        !   imin = minloc(s_wall)
-        !   s(2,i) = maxval(s_wall)!(3)!s_wall(2) * auxl(ilenrat,i)
-        !   imax = maxloc(s_wall)
-        ! !   ! s(3,i) =s_wall(3) * auxl(ilenrat,i)
-        !   wave(1,1,i) = wave_wall(1,imin(1))
-        !   wave(mu,1,i) = alpha*wave_wall(mu,imin(1)) - beta*wave_wall(mv,imin(1))
-        !   wave(mv,1,i) = beta*wave_wall(mu,imin(1)) + alpha*wave_wall(mv,imin(1))
-        !   wave(:,1,i) = wave(:,1,i)/s(1,i)
-        ! !   ! ! if (s_wall(2) < 0 ) then
-        ! !   ! ! else
-        ! !   !   ! s(1,i) = s_wall(1)
-        ! !   !   ! s(2,i) = 0.5d0*(s_wall(2)+s_wall(3))
-        !     wave(1,2,i) = wave_wall(1,imax(1))
-        !     wave(mu,2,i) = alpha*wave_wall(mu,imax(1)) - beta*wave_wall(mv,imax(1))
-        !     wave(mv,2,i) = beta*wave_wall(mu,imax(1)) + alpha*wave_wall(mv,imax(1))
-        !     wave(:,2,i) = wave(:,2,i)/s(2,i)
-
-        !   ! ! end if
-        !   ! wave(mu,3,i) = (alpha*wave_wall(mu,3) - beta*wave_wall(mv,3))
-        !   ! wave(mv,3,i) = (beta*wave_wall(mu,3) + alpha*wave_wall(mv,3))
+     
 
             amdq(1,i) = amdq_wall(1)
             amdq(mu,i) = alpha*amdq_wall(mu) - beta*amdq_wall(mv)
@@ -213,30 +191,7 @@ subroutine rpn2(ixy,maxm,meqn,mwaves,maux,mbc,mx,ql,qr,auxl,auxr,wave,s,amdq,apd
         s(3,i) = (u_hat+c_hat) * auxl(ilenrat,i)
 
 
-        ! ! Speeds of non-shear waves
-        ! s1 = min(unorl/h_l - c_l, u_hat - c_hat)* auxl(ilenrat,i)
-        ! s2 = max(unorr/h_r + c_r, u_hat + c_hat)*  auxl(ilenrat,i)
-        !
-        ! ! "middle" state
-        ! h_m = (unorr - unorl - s2*ql(depth,i) + s1*qr(depth,i-1))/(s1-s2)
-        ! hu_m = (unorr*(unorr/h_r-s2) - unorl*(unorl/h_l-s1) + 0.5*grav*(h_r**2 - h_l**2) ) / (s1-s2)
-        ! hv_m = (utanr*unorr/h_r - utanl*unorl/h_l - s2*utanr + s1*utanl)/(s1-s2)
-        !
-        ! wave(depth,1,i) = h_m - h_l
-        ! wave(mu,1,i) = alpha*(hu_m - unorl) - beta*( hv_m - utanl)
-        ! wave(mv,1,i) = beta* (hu_m - unorl) + alpha*(hv_m - utanl)
-        ! s(1,i) = s1
-        !
-        ! ! s(2,i) = u_hat * auxl(ilenrat,i)
-        ! ! wave(depth,2,i) =0.0d0
-        ! ! wave(mu,2,i) = -beta*(v_hat*(h_r-h_l) + utanr-utanl)
-        ! ! wave(mv,2,i) = alpha*(v_hat*(h_r-h_l) + utanr-utanl)
-        !
-        !
-        ! wave(depth,2,i) = h_r - h_m
-        ! wave(mu,2,i) = alpha*(unorr - hu_m) - beta*(utanr - hv_m)
-        ! wave(mv,2,i) = beta*(unorr - hu_m) + alpha*(utanr - hv_m)
-        ! s(2,i) = s2
+   
 
       endif
 
@@ -261,96 +216,6 @@ subroutine rpn2(ixy,maxm,meqn,mwaves,maux,mbc,mx,ql,qr,auxl,auxr,wave,s,amdq,apd
         end do
     end do
 
-    ! do i=2-mbc,mx+mbc
-    !   if (ixy==2 .and. i ==mlo) then
-    !     cycle
-    !   else
-    ! ! c           check 1-wave
-    !             him1 = ql(1,i)
-    !             unorl = alpha*qr(mu,i-1) + beta*qr(mv,i-1)
-    !             unorr = alpha*ql(mu,i) + beta*ql(mv,i)
-    !             utanl = -beta*qr(mu,i-1) + alpha*qr(mv,i-1)
-    !             utanr = -beta*ql(mu,i) + alpha*ql(mv,i)
-    !             alpha = auxl(inx,i)
-    !             beta  = auxl(iny,i)
-    !
-    !             s0 =  (unorr/him1 - dsqrt(grav*him1)) * auxl(ilenrat,i)
-    ! ! c           check for fully supersonic case :
-    !             if (s0.gt.0.0d0.and.s(1,i).gt.0.0d0) then
-    !                do m=1,3
-    !                   amdq(m,i)=0.0d0
-    !                 enddo
-    !                EXIT !goto 200
-    !             endif
-    !
-    !             h1 = ql(1,i)+wave(1,1,i)
-    !             hu1= unorr+ alpha*wave(mu,1,i) + beta*wave(mv,1,i)
-    !             s1 = (hu1/h1 - dsqrt(grav*h1))* auxl(ilenrat,i)
-    !                    !speed just to right of 1-wave
-    !             if (s0.lt.0.0d0.and.s1.gt.0.0d0) then
-    ! ! c              transonic rarefaction in 1-wave
-    !                sfract = s0*((s1-s(1,i))/(s1-s0))
-    !             else if (s(i,1).lt.0.0d0) then
-    ! ! c              1-wave is leftgoing
-    !                sfract = s(1,i)
-    !             else
-    ! ! c              1-wave is rightgoing
-    !                sfract = 0.0d0
-    !             endif
-    !             do  m=1,3
-    !                amdq(m,i) = sfract*wave(m,1,i)
-    !              enddo
-    ! ! c           check 2-wave
-    !             if (s(2,i).gt.0.0d0) then
-    ! ! c	       #2 and 3 waves are right-going
-    ! 	        EXIT
-    ! 	       endif
-    !
-    !             do m=1,3
-    !                amdq(m,i) = amdq(m,i) + s(2,i)*wave(m,2,i)
-    !              enddo
-    !
-    !
-    ! ! c           check 3-wave
-    !             hi = qr(1,i-1)
-    !             s03 = (unorl/hi + dsqrt(grav*hi)) * auxl(ilenrat,i)
-    !             h3=qr(1,i-1)-wave(1,3,i)
-    !             hu3=unorl- (alpha*wave(mu,3,i) + beta*wave(mv,3,i))
-    !             s3=(hu3/h3 + dsqrt(grav*h3)) * auxl(ilenrat,i)
-    !             if (s3.lt.0.0d0.and.s03.gt.0.0d0) then
-    ! ! c              transonic rarefaction in 3-wave
-    !                sfract = s3*((s03-s(3,i))/(s03-s3))
-    !             else if (s(3,i).lt.0.0d0) then
-    ! ! c              3-wave is leftgoing
-    !                sfract = s(3,i)
-    !             else
-    ! ! c              3-wave is rightgoing
-    !                EXIT !goto 200
-    !             endif
-    !             do m=1,3
-    !                amdq(m,i) = amdq(m,i) + sfract*wave(m,3,i)
-    !             enddo
-    !     end if
-    !   enddo
-    !   ! 200       continue
-    ! ! c           compute rightgoing flux differences :
-    !             do m=1,3
-    !                do  j = 2-mbc,mx+mbc
-    !                  if (ixy==2 .and. i ==mlo) then
-    !                    cycle
-    !                  else
-    !                   df = 0.0d0
-    !                   do mw=1,mwaves
-    !                      df = df + s(mw,j)*wave(m,mw,j)
-    !                    enddo
-    !                   apdq(m,j)=df-amdq(m,j)
-    !                 end if
-    !                 end do
-    !             end do
-
-
-      ! if (ixy==2) then
-          ! print *, "WAVE:"
-      !   end if
+   
 
 end subroutine rpn2
