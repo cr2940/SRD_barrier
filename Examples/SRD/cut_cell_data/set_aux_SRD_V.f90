@@ -106,36 +106,7 @@ ENDFILE 1
 REWIND 1
 close (1,status="keep")
 
-call down_hboxes(xlower,ylower,xupper,yupper,mbc,mx,my,ii(1),jj(1),x_0,y_0,ii(N),&
-   jj(N),x_e,y_e,m,hbox_areas_d,num_frags_d,area_frags_d,index_frags_d,1)
-call down_hboxes(xlower,ylower,xupper,yupper,mbc,mx,my,ii2(1),jj2(1),x_1,y_1,ii2(N2),&
-  jj2(N2),x_2,y_2,m2,hbox_areas_d2,num_frags_d2,area_frags_d2,index_frags_d2,1)
-call up_hboxes(xlower,ylower,xupper,yupper,mbc,mx,my,ii(1),jj(1),x_0,y_0,ii(N),&
-   jj(N),x_e,y_e,m,hbox_areas_u,num_frags_u,area_frags_u,index_frags_u,1)
-call up_hboxes(xlower,ylower,xupper,yupper,mbc,mx,my,ii2(1),jj2(1),x_1,y_1,ii2(N2),&
-  jj2(N2),x_2,y_2,m2,hbox_areas_u2,num_frags_u2,area_frags_u2,index_frags_u2,1)
-open (unit=2,file="./hbox_data.txt")
-write(2,*) m
-write(2,*) m2
-write(2,*) num_frags_d
-write(2,*) num_frags_d2
-write(2,*) num_frags_u
-write(2,*) num_frags_u2
-write(2,*) index_frags_d
-write(2,*) index_frags_d2
-write(2,*) index_frags_u
-write(2,*) index_frags_u2
-write(2,*) hbox_areas_d
-write(2,*) hbox_areas_d2
-write(2,*) hbox_areas_u
-write(2,*) hbox_areas_u2
-write(2,*) area_frags_u
-write(2,*) area_frags_u2
-write(2,*) area_frags_d
-write(2,*) area_frags_d2
-ENDFILE 2
-REWIND 2
-close(2,status="keep")
+
 ! read(1,*) M
 ! read(1,*) ii(1:N)
 print*, "The number of cut cells is: ", N
