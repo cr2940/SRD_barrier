@@ -52,121 +52,6 @@ contains
   fn_val = abs(a/2.d0)
   end function
 
-  ! subroutine cut_cells_find(x_0,y_0,x_e,y_e,dx,dy,xlower,ylower,mx,my,ii,jj,intersections,N_cells)   !  O
-  !   ! returns ii, jj which are 4*mx (long) arrays that contain i-index and j-index respectively
-  !   ! of cut cells, and N which is the actual number of cut cells (so go from ii(1:N),jj(1:N))
-  !   implicit none
-  !
-  !   real(8) :: x_0,y_0,x_e,y_e,dx,dy,xlower,ylower
-  !   integer :: mx,my,ii(4*mx),jj(4*mx),N_cells,N
-  !   real(8) :: intersections(2,4*mx)
-  !
-  !   ! local
-  !   integer :: i,j,k,i_0,j_0,size1,mbc
-  !   integer, allocatable :: indexes(:)
-  !   real(8) :: xe(-2:mx+2),ye(-2:my+2),slope_bar,theta,dist_x,dist_y
-  !   real(8), allocatable :: intersect_0(:,:), intersect_top(:,:),midpoints(:,:)
-  !   xe = (/(xlower+i*dx, i=-2,mx+2)/)
-  !   ye = (/(ylower+i*dy, i=-2,my+2)/)
-  !   mbc =2
-  !   ! wall parameters:
-  !   if (x_e-x_0 .ne. 0.d0) then
-  !     slope_bar = (y_e-y_0)/(x_e-x_0)
-  !     theta = atan(slope_bar)
-  !   else
-  !     i=-2
-  !     j=-2
-  !     do while (x_0 > xe(i))
-  !       i = i +1
-  !     end do
-  !     do while  (y_0 > ye(j))
-  !       j=j+1
-  !     end do
-  !     ii = i-1
-  !     jj = (/(j-1+k,k=1,my)/)
-  !     N_cells = my
-  !     return
-  !   end if
-  !
-  !   ! get intersections between barrier and grid lines :
-  !   do k=-2,mx+2
-  !     if (xe(k)-tol .le. x_e .and. xe(k)+tol .ge. x_0) then
-  !       dist_x = x_e - xe(k)
-  !       dist_y = dist_x * tan(pi-theta)
-  !       call AddToList_verts(intersect_0,(/xe(k),y_e+dist_y/))
-  !     end if
-  !   end do
-  !
-  !   do k=-2,my+2
-  !     if (ye(k)-tol.le.max(y_e,y_0) .and. ye(k)+tol.ge.min(y_0,y_e)) then
-  !       dist_y = y_0 - ye(k)
-  !       dist_x = dist_y/tan(pi-theta)
-  !       call AddToList_verts(intersect_0,(/x_0+dist_x,ye(k)/))
-  !     end if
-  !   end do
-  !   ! treat array (get rid of duplicate and sort)
-  !      intersect_top = remove_dups(intersect_0)
-  !      ! print*, "Intersections: x", intersect_top(1,:)
-  !      ! print*, "intersections: y", intersect_top(2,:)
-  !      size1 = size(intersect_top,2)
-  !      N=size1
-  !     allocate(indexes(size1))
-  !     call KB07AD(intersect_top(1,:),size1,indexes)
-  !     intersect_top(2,:) = intersect_top(2,indexes)
-  !     ! print*,"Intersections; ", intersect_top(1,:)
-  !     ! print*,"Intersections: ", intersect_top(2,:)
-  !     intersections(:,1:N) = intersect_top(:,1:N)
-  !     ! for each pair of neighboring intersections, find which cell it cuts
-  !        !find the midpoint of the intersections and see which cell they fit in
-  !        ! start with i_0,j_0 and walk up or down
-  !       allocate(midpoints(N-1,2))
-  !       do i=1, N-1
-  !         midpoints(i,1:2) = (/0.5d0*(intersect_top(1,i)+intersect_top(1,i+1)),&
-  !         0.5d0*(intersect_top(2,i)+intersect_top(2,i+1))/)
-  !       end do
-  !       ! write(*,*) "midpoint ", midpoints
-  !
-  !     ! put them into ii and jj
-  !     ! the first cell where the barrier starts is always cut:
-  !     do i=1-mbc,mx+mbc
-  !       if (midpoints(1,1) .gt. xe(i) .and. midpoints(1,1) .lt. xe(i+1)) then
-  !         i_0 = i
-  !         exit
-  !       end if
-  !     end do
-  !     do i = 1-mbc,my+mbc
-  !       if (midpoints(1,2) .gt. ye(i) .and. midpoints(1,2) .lt. ye(i+1)) then
-  !         j_0 = i
-  !         exit
-  !       end if
-  !     end do
-  !
-  !     ii(1) = i_0
-  !     jj(1) = j_0
-  !     j = 1 ! counter for cut cells
-  !     do i = 1, N-2
-  !       if (midpoints(i+1,1) .lt. xe(ii(i)) .and. midpoints(i+1,1) .gt. xe(ii(i)-1)) then
-  !         ii(i+1) = ii(i) - 1
-  !       else if (midpoints(i+1,1) .gt. xe(ii(i)+1) .and. midpoints(i+1,1) .lt. xe(ii(i)+2)) then
-  !         ii(i+1) = ii(i) + 1
-  !       else if (midpoints(i+1,1) .gt. xe(ii(i)) .and. midpoints(i+1,1) .lt. xe(ii(i)+1)) then
-  !         ii(i+1) = ii(i)
-  !       end if
-  !       if (midpoints(i+1,2) .lt. ye(jj(i)) .and. midpoints(i+1,2) .gt. ye(jj(i)-1)) then
-  !         jj(i+1) = jj(i) - 1
-  !       else if (midpoints(i+1,2) .gt. ye(jj(i)+1) .and. midpoints(i+1,2) .lt. ye(jj(i)+2)) then
-  !         jj(i+1) = jj(i) + 1
-  !       else if (midpoints(i+1,2) .gt. ye(jj(i)) .and. midpoints(i+1,2) .lt. ye(jj(i)+1)) then
-  !         jj(i+1) = jj(i)
-  !       end if
-  !     end do
-  !     ! N is number of intersections, N_cells number of cut cells.
-  !     N_cells=N-1
-  !     ! fortran indexing
-  !     ii = ii + 1
-  !     jj = jj + 1
-  !  end subroutine
-
 
     subroutine small_cells_geom(ii,jj,intersections,mx,my,dx,dy,xlower,ylower,N_cells,&        ! O
       type_supper,type_sunder,lengths_supper,lengths_sunder,area_supper,area_sunder)
@@ -322,64 +207,12 @@ contains
       real(8) :: dir1(3),dir2(3),dir3(3),dir4(3),s(3),fwave(3,3),apdq(3)
       real(8) :: qtemp1(3),qtemp2(3),qtemp3(3)
 
-      ! get the hboxes for normal barrier flux calculation:
-!       inquire (file="./hbox_data.txt",exist=lexist)
- !      open (unit=2,file="./hbox_data.txt",FORM="FORMATTED",STATUS="OLD",&
-  !     ACTION="READ",access='sequential')
-   !    rewind 2
-    !   read(2,*,end=100) m
-  !     read(2,*) m2
-  !     read(2,*) num_frags_d
-   !    read(2,*) num_frags_d2
-    !   read(2,*) num_frags_u
-   !    read(2,*) num_frags_u2
-    !   read(2,*) index_frags_d
-  !     read(2,*) index_frags_d2
-   !    read(2,*) index_frags_u
-    !   read(2,*) index_frags_u2
-   !    read(2,*) hbox_areas_d
-   !    read(2,*) hbox_areas_d2
-   !    read(2,*) hbox_areas_u
-   !    read(2,*) hbox_areas_u2
-   !    read(2,*) area_frags_u
-   !    read(2,*) area_frags_u2
-   !    read(2,*) area_frags_d
-   !    read(2,*) area_frags_d2
-   !    close(2,status="keep")
- !  100 continue
       q_hbox_d = 0.d0
       q_hbox_u = 0.d0
       aux_hbox_d = -2.d0
       aux_hbox_u = -2.d0
-   !   if (ixy.eq.1) then
-    !   do i = 1,m
-     !    do j=1,num_frags_d(i)
-      !     look = index_frags_d(:,j,i)
-        !   q_hbox_d(:,i) = q_hbox_d(:,i) + qold(:,look(1),look(2))*area_frags_d(j,i)
-      !   end do
-    !   enddo
-     !  do i = 1,m
-      !   do j=1,num_frags_u(i)
-       !    look = index_frags_u(:,j,i)
-        !   q_hbox_u(:,i) = q_hbox_u(:,i) + qold2(:,look(1),look(2))*area_frags_u(j,i)
-       !  end do
-     !  enddo
-   !  endif
-!    if (ixy.eq.2) then
-!      do i = 1,m2
-!        do j=1,num_frags_d2(i)
-!          look = index_frags_d2(:,j,i)
-!          q_hbox_d(:,i) = q_hbox_d(:,i) + qold(:,look(1),look(2))*area_frags_d2(j,i)
-!        end do
-!     enddo
-!      do i = 1,m2
-!        do j=1,num_frags_u2(i)
-!          look = index_frags_u2(:,j,i)
-!          q_hbox_u(:,i) = q_hbox_u(:,i) + qold2(:,look(1),look(2))*area_frags_u2(j,i)
-!        end do
-!      enddo
-!    end if
-       ot = .false.
+
+      ot = .false.
        coef = 1
       ll = -1  ! if ot make these neg
       mm = -1
@@ -427,26 +260,10 @@ contains
 
           call barrier_passing(hL,hR,huL,huR,bL,bR,wall_height,&
                     L2R,R2L,hstarL,hstarR,ustarL,ustarR)
-          ! if (L2R .or. R2L) then
-          !   ot = .true.
-          !   coef= -1
             q_hbox_d(:,i) = vec3
             q_hbox_u(:,i) = vec4
-          ! else
-          !   if (ixy.eq.1) then
-          !     call rotate_state(q_hbox_d(:,i),q_hbox_d(:,i), &
-          !     -mm*n_vec,-mm*vec5)
-          !     call rotate_state(q_hbox_u(:,i),q_hbox_u(:,i),&
-          !      -ll*n_vec,-ll*vec5)
-          !    else
-          !      call rotate_state(q_hbox_d(:,i),q_hbox_d(:,i), &
-          !     -mm*n_vec,-mm*vec5)  ! turn these into negative for OT and positive for RF
-          !      call rotate_state(q_hbox_u(:,i),q_hbox_u(:,i),&
-          !       -ll*n_vec,-ll*vec5)
-          !     end if
-          ! end if
-
-          call redistribute_fwave(1,q_hbox_u(:,i),q_hbox_d(:,i),aux_hbox_u(i),&
+      
+      call redistribute_fwave(1,q_hbox_u(:,i),q_hbox_d(:,i),aux_hbox_u(i),&
              aux_hbox_d(i),wall_height,1,wave_wall,s_wall,amdq_wall,apdq_wall,3,&
              3,L2R,R2L)
             if (ixy.eq.1) then
